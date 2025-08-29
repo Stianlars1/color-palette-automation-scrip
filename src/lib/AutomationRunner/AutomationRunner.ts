@@ -1,6 +1,7 @@
 // src/lib/AutomationRunner/AutomationRunner.ts
 import { ColorPaletteAutomation } from '../ColorPaletteAutomation/ColorPaletteAutomation.js';
 import chalk from 'chalk';
+export type Scheme = 'monochromatic' | 'analogous' | 'complementary' | 'triadic';
 
 export class AutomationRunner {
     private automation: ColorPaletteAutomation;
@@ -14,13 +15,16 @@ export class AutomationRunner {
         this.automation.setDebugMode(enabled);
     }
 
-    async generateFullPalette(brandColor?: string): Promise<void> {
+
+    async generateFullPalette(brandColor?: string, scheme: Scheme = 'analogous'): Promise<void> {
+
         try {
             await this.automation.initialize();
 
             console.log('🎨 Generating base color palette...');
-            const baseColors = this.automation.generateBaseColors(brandColor);
-            
+            const baseColors = this.automation.generateBaseColors(brandColor, scheme);
+
+
             this.printBaseColorSwatches(baseColors);
 
             console.log('\n🚀 Processing with Radix UI (Light + Dark modes)...');

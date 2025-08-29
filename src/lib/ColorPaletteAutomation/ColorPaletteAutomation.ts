@@ -1,5 +1,8 @@
 // src/lib/ColorPaletteAutomation/ColorPaletteAutomation.ts
 import {Browser, chromium, Page} from 'playwright';
+import {hexToHSLString, hslToHex} from "@/lib/colorConverters";
+import {Scheme} from "@/lib/AutomationRunner/AutomationRunner";
+import {AdvancedColorTheory} from "@/lib/ColorTheory";
 
 interface ColorPalette {
     accent: string;
@@ -51,33 +54,36 @@ export class ColorPaletteAutomation {
         }
     }
 
-    generateBaseColors(brandColor?: string): ColorPalette {
-        const baseHue = brandColor ? this.hexToHsl(brandColor).h : Math.floor(Math.random() * 360);
+    generateBaseColors(brandColor?: string, scheme: Scheme = 'analogous'): {
 
-        const accent = this.hslToHex({
-            h: baseHue,
-            s: 85,
-            l: 55
-        });
+        accent: string;
+        gray: string;
+        lightBackground: string;
+        darkBackground: string;
+    } {
+        const normalize = (raw?: string): string | undefined => {
+            if (!raw) return undefined;
+            const cleaned = raw.trim().replace(/^#/, '').toUpperCase();
+            if (/^[0-9A-F]{6}$/.test(cleaned)) return `#${cleaned}`;
+            if (/^[0-9A-F]{3}$/.test(cleaned)) {
+                const [r, g, b] = cleaned.split('');
+                return `#${r}${r}${g}${g}${b}${b}`;
+            }
+            return undefined;
+        };
 
-        const grayHue = (baseHue + 180) % 360;
-        const gray = this.hslToHex({
-            h: grayHue,
-            s: 8,
-            l: 50
-        });
+        const normalized = normalize(brandColor);
 
-        const lightBackground = this.hslToHex({
-            h: baseHue,
-            s: 20,
-            l: 98
-        });
 
-        const darkBackground = this.hslToHex({
-            h: baseHue,
-            s: 15,
-            l: 8
-        });
+        const seed = normalize(brandColor) ?? '#3B82F6'; // fallback if none provided
+
+        // Use color theory to derive supportive colors *for this scheme*
+        const theory = AdvancedColorTheory.generateHarmoniousPalette(seed, scheme);
+
+        const accent = seed;
+        const gray = theory.gray;
+        const lightBackground = theory.lightBg;
+        const darkBackground = theory.darkBg;
 
         return {
             accent,
@@ -95,7 +101,7 @@ export class ColorPaletteAutomation {
         console.log('📂 Navigating to Radix Colors...');
         await this.page.goto('https://www.radix-ui.com/colors/custom');
         await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(200);
+        await this.page.waitForTimeout(50);
 
         console.log('🎨 Filling color inputs...');
         await this.fillColorInputs(colors, false); // isDark = false
@@ -121,16 +127,16 @@ export class ColorPaletteAutomation {
             name: 'accent',
             lightSteps: lightModeColors.accent,
             darkSteps: darkModeColors.accent,
-            lightHslSteps: lightModeColors.accent.map(hex => this.hexToHslString(hex)),
-            darkHslSteps: darkModeColors.accent.map(hex => this.hexToHslString(hex))
+            lightHslSteps: lightModeColors.accent.map(hex => hexToHSLString(hex)),
+            darkHslSteps: darkModeColors.accent.map(hex => hexToHSLString(hex))
         };
 
         const grayScale: RadixColorScale = {
             name: 'gray',
             lightSteps: lightModeColors.gray,
             darkSteps: darkModeColors.gray,
-            lightHslSteps: lightModeColors.gray.map(hex => this.hexToHslString(hex)),
-            darkHslSteps: darkModeColors.gray.map(hex => this.hexToHslString(hex))
+            lightHslSteps: lightModeColors.gray.map(hex => hexToHSLString(hex)),
+            darkHslSteps: darkModeColors.gray.map(hex => hexToHSLString(hex))
         };
 
         const css = this.generateCSS(accentScale, grayScale);
@@ -148,15 +154,15 @@ export class ColorPaletteAutomation {
         try {
             console.log(`🎨 Setting accent color: ${colors.accent}`);
             await this.page.fill('#accent', colors.accent.replace('#', ''));
-            await this.page.waitForTimeout(200);
+            await this.page.waitForTimeout(10);
 
             console.log(`🎨 Setting gray color: ${colors.gray}`);
             await this.page.fill('#gray', colors.gray.replace('#', ''));
-            await this.page.waitForTimeout(200);
+            await this.page.waitForTimeout(10);
 
             console.log(`🎨 Setting background color: ${colors.lightBackground}`);
             await this.page.fill('#bg', isDark ? colors.darkBackground.replace('#', '') : colors.lightBackground.replace('#', ''));
-            await this.page.waitForTimeout(200);
+            await this.page.waitForTimeout(10);
 
             console.log('✅ Color inputs filled successfully');
 
@@ -175,7 +181,7 @@ export class ColorPaletteAutomation {
             if (lightButton) {
                 console.log('☀️ Clicking Light mode button');
                 await lightButton.click();
-                await this.page.waitForTimeout(200);
+                await this.page.waitForTimeout(25);
             } else {
                 console.log('☀️ Light mode already selected');
             }
@@ -194,7 +200,7 @@ export class ColorPaletteAutomation {
             if (darkButton) {
                 console.log('🌙 Clicking Dark mode button');
                 await darkButton.click();
-                await this.page.waitForTimeout(2000); // Wait for dark mode to load
+                await this.page.waitForTimeout(25); // Wait for dark mode to load
 
                 // Refill inputs after mode switch since they get cleared
                 if (this.storedColors) {
@@ -239,6 +245,7 @@ export class ColorPaletteAutomation {
                     const color = await this.extractColorFromSwatch(swatchButtons[i]);
                     if (color) {
                         accentColors.push(color);
+                        await this.ensureNoDialogOpen();           // ← new
                         console.log(`  Accent ${i + 1}: ${color}`);
                     }
                 } catch (error) {
@@ -250,6 +257,7 @@ export class ColorPaletteAutomation {
             for (let i = 12; i < Math.min(24, swatchButtons.length); i++) {
                 try {
                     console.log(`Extracting gray color ${i - 11}...`);
+                    await this.ensureNoDialogOpen();           // ← new
                     const color = await this.extractColorFromSwatch(swatchButtons[i]);
                     if (color) {
                         grayColors.push(color);
@@ -279,57 +287,41 @@ export class ColorPaletteAutomation {
     private async extractColorFromSwatch(swatchButton: any): Promise<string | null> {
         if (!this.page) return null;
 
-        try {
-            // Click the swatch button to open the modal
-            await swatchButton.click();
-            await this.page.waitForTimeout(50);
+        const dialogOverlay = this.page.locator('.rt-DialogOverlay'); // Radix Themes overlay
 
-            // Look for the hex copy button in the modal
-            // Based on your HTML: <button ...>#F9F6F5</button>
-            const copyButton = await this.page.$('button.rt-reset.rt-BaseButton.rt-r-size-2.rt-variant-ghost.rt-high-contrast.rt-Button');
+        // Open
+        await swatchButton.click();
+        await dialogOverlay.first().waitFor({state: 'visible'});
 
-            if (copyButton) {
-                const hexText = await copyButton.textContent();
+        // Grab the hex from the dialog (adjust the locator if your DOM differs)
+        const hexButton = this.page.getByRole('button', {name: /^#[0-9A-F]{6}$/i}).first();
+        await hexButton.waitFor({state: 'visible'});
+        const text = (await hexButton.textContent())?.trim() ?? null;
 
-                if (hexText && hexText.startsWith('#') && hexText.length === 7) {
-                    // Close the modal by clicking outside or pressing Escape
-                    await this.page.keyboard.press('Escape');
-                    await this.page.waitForTimeout(50);
+        // Close
+        await this.page.keyboard.press('Escape');
+        await dialogOverlay.first().waitFor({state: 'detached'}); // ← key fix: wait until overlay is gone
 
-                    return hexText.trim();
-                }
-            }
-
-            // Alternative: look for any button containing a hex color
-            const allButtons = await this.page.$$('button');
-            for (const button of allButtons) {
-                const text = await button.textContent();
-                if (text && /^#[0-9A-Fa-f]{6}$/.test(text.trim())) {
-                    await this.page.keyboard.press('Escape');
-                    await this.page.waitForTimeout(50);
-                    return text.trim();
-                }
-            }
-
-            // Close modal if still open
-            await this.page.keyboard.press('Escape');
-            await this.page.waitForTimeout(50);
-
-        } catch (error) {
-            console.warn('Error extracting color from swatch:', error);
-            // Try to close any open modal
-            await this.page.keyboard.press('Escape');
-            await this.page.waitForTimeout(50);
-        }
-
-        return null;
+        return text;
     }
+
+
+    private async ensureNoDialogOpen() {
+        if (!this.page) return null;
+        const dialogOverlay = this.page.locator('.rt-DialogOverlay');
+        if (await dialogOverlay.count()) {
+            await this.page.keyboard.press('Escape');
+            await dialogOverlay.first().waitFor({state: 'detached'});
+        }
+    }
+
+
 
     private generateFallbackAccentColors(): string[] {
         const colors: string[] = [];
         for (let i = 1; i <= 12; i++) {
             const lightness = 95 - (i - 1) * 7;
-            const color = this.hslToHex({
+            const color = hslToHex({
                 h: 15,
                 s: Math.max(10, 90 - (i - 1) * 5),
                 l: Math.max(5, lightness)
@@ -343,7 +335,7 @@ export class ColorPaletteAutomation {
         const colors: string[] = [];
         for (let i = 1; i <= 12; i++) {
             const lightness = 95 - (i - 1) * 7;
-            const color = this.hslToHex({
+            const color = hslToHex({
                 h: 220,
                 s: 5,
                 l: Math.max(5, lightness)
@@ -353,10 +345,6 @@ export class ColorPaletteAutomation {
         return colors;
     }
 
-    private hexToHslString(hex: string): string {
-        const hsl = this.hexToHsl(hex);
-        return `${hsl.h} ${hsl.s}% ${hsl.l}%`;
-    }
 
     generateCSS(accent: RadixColorScale, gray: RadixColorScale): {
         light: string;
@@ -436,67 +424,4 @@ ${gray.darkHslSteps.map((hsl, i) => `    --gray-${i + 1}: ${hsl};`).join('\n')}
         };
     }
 
-    // Utility methods remain the same...
-    private hexToHsl(hex: string): { h: number; s: number; l: number } {
-        const r = parseInt(hex.slice(1, 3), 16) / 255;
-        const g = parseInt(hex.slice(3, 5), 16) / 255;
-        const b = parseInt(hex.slice(5, 7), 16) / 255;
-
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        let h = 0;
-        let s = 0;
-        const l = (max + min) / 2;
-
-        if (max !== min) {
-            const d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-            switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-        }
-
-        return {
-            h: Math.round(h * 360),
-            s: Math.round(s * 100),
-            l: Math.round(l * 100)
-        };
-    }
-
-    private hslToHex(hsl: { h: number; s: number; l: number }): string {
-        const { h, s, l } = hsl;
-        const sNorm = s / 100;
-        const lNorm = l / 100;
-
-        const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
-        const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-        const m = lNorm - c / 2;
-        let r = 0;
-        let g = 0;
-        let b = 0;
-
-        if (0 <= h && h < 60) {
-            r = c; g = x; b = 0;
-        } else if (60 <= h && h < 120) {
-            r = x; g = c; b = 0;
-        } else if (120 <= h && h < 180) {
-            r = 0; g = c; b = x;
-        } else if (180 <= h && h < 240) {
-            r = 0; g = x; b = c;
-        } else if (240 <= h && h < 300) {
-            r = x; g = 0; b = c;
-        } else if (300 <= h && h < 360) {
-            r = c; g = 0; b = x;
-        }
-
-        r = Math.round((r + m) * 255);
-        g = Math.round((g + m) * 255);
-        b = Math.round((b + m) * 255);
-
-        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-    }
 }

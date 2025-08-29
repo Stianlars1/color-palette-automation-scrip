@@ -4,36 +4,55 @@ import { AutomationRunner } from '../lib/AutomationRunner/AutomationRunner.js';
 import { AdvancedColorTheory } from '../lib/ColorTheory.js';
 import chalk from 'chalk';
 
+// Normalizes many hex formats to "#RRGGBB". Returns undefined if invalid.
+const normalizeHex = (raw?: string): string | undefined => {
+    if (!raw) return undefined;
+
+    const cleaned = raw.trim().replace(/^#/, '').toUpperCase();
+
+    // #RRGGBB
+    if (/^[0-9A-F]{6}$/.test(cleaned)) return `#${cleaned}`;
+
+    // #RGB  -> expand to #RRGGBB
+    if (/^[0-9A-F]{3}$/.test(cleaned)) {
+        const [r, g, b] = cleaned.split('');
+        return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
+    }
+
+    return undefined; // invalid → let caller decide fallback
+};
+
+
 async function main() {
     const args = process.argv.slice(2);
-    const brandColor = args[0];
-    const scheme = args[1] as any || 'analogous';
+    const brandArgRaw = args[0];                           // "ffc8dd" | "#ffc8dd" | "random" | undefined
+    const scheme = ((args[1] || 'analogous').toLowerCase() as Scheme);
     const debugMode = args[2] === 'debug';
 
     console.log('🎨 Starting Color Palette Automation...\n');
 
-    if (brandColor && brandColor !== 'random') {
-        console.log(`Using brand color: ${brandColor}`);
-        console.log(`Using color scheme: ${scheme}\n`);
-    } else {
-        console.log('Generating random harmonious palette...\n');
+    // Decide a single seed and reuse it for both preview and generation
+    const seed = brandArgRaw && brandArgRaw.toLowerCase() !== 'random'
+        ? normalizeHex(brandArgRaw)
+        : undefined;
+
+    if (seed) {
+        console.log(`Using brand color: ${seed}`);
+    } else if (brandArgRaw?.toLowerCase() === 'random') {
+        console.log('Using random brand color');
     }
 
+    console.log(`Using color scheme: ${scheme}\n`);
+
+    // Preview (uses the SAME seed)
+    const theorySeed = seed ?? '#3B82F6'; // fallback seed for preview if none provided
+    const theory = AdvancedColorTheory.generateHarmoniousPalette(theorySeed, scheme);
+    printColorTheorySwatches(theory, scheme);
+
+    // Run automation using the SAME seed and the scheme
     const runner = new AutomationRunner();
-
-    runner.setDebugMode(debugMode); // Add this method to AutomationRunner
-
-    // Use advanced color theory if scheme is specified
-    if (scheme !== 'basic') {
-        const colors = AdvancedColorTheory.generateHarmoniousPalette(
-            brandColor || '#3B82F6',
-            scheme
-        );
-        console.log('🔬 Color Theory Analysis:');
-        printColorTheorySwatches(colors, scheme);
-    }
-
-    await runner.generateFullPalette(brandColor);
+    runner.setDebugMode(debugMode);
+    await runner.generateFullPalette(theorySeed, scheme);
 }
 
 function printColorTheorySwatches(colors: any, scheme: string): void {
