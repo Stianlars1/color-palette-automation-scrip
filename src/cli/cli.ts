@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // src/cli/cli.ts
-import { AutomationRunner } from '../lib/AutomationRunner/AutomationRunner.js';
-import { AdvancedColorTheory } from '../lib/ColorTheory.js';
+import {AutomationRunner} from '../lib/AutomationRunner/AutomationRunner.js';
+import {AdvancedColorTheory} from '../lib/ColorTheory.js';
 import chalk from 'chalk';
+import {Scheme} from "@/types/types";
 
 // Normalizes many hex formats to "#RRGGBB". Returns undefined if invalid.
 const normalizeHex = (raw?: string): string | undefined => {
@@ -29,12 +30,17 @@ async function main() {
     const scheme = ((args[1] || 'analogous').toLowerCase() as Scheme);
     const debugMode = args[2] === 'debug';
 
-    console.log('🎨 Starting Color Palette Automation...\n');
+    console.log('🎨 Starting Color Palette Automation....\n');
+    console.log("brandArgRaw", brandArgRaw)
+    console.log("Scheme", scheme)
+    console.log("Args..", args)
 
     // Decide a single seed and reuse it for both preview and generation
     const seed = brandArgRaw && brandArgRaw.toLowerCase() !== 'random'
         ? normalizeHex(brandArgRaw)
         : undefined;
+
+    console.log("seed", seed)
 
     if (seed) {
         console.log(`Using brand color: ${seed}`);

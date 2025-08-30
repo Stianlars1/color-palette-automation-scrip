@@ -1,5 +1,5 @@
 // src/lib/ColorTheory.ts
-import {hexToHSL, hslToHex} from "@/lib/colorConverters";
+import {hexToHSL, hslToHex} from "@/lib/utils/color/colorConverters";
 
 export class AdvancedColorTheory {
     /**

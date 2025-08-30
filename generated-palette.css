@@ -1,86 +1,86 @@
 
 :root {
-  --background: 240 12% 97%;
-  --foreground: 249 18% 14%;
-  --foreground-subtle: 250 9% 39%;
-  --card: 255 18% 96%;
-  --card-foreground: 249 18% 14%;
-  --popover: 240 12% 97%;
-  --popover-foreground: 249 18% 14%;
+  --background: 330 14% 97%;
+  --foreground: 336 22% 14%;
+  --foreground-subtle: 337 11% 39%;
+  --card: 336 26% 96%;
+  --card-foreground: 336 22% 14%;
+  --popover: 330 14% 97%;
+  --popover-foreground: 336 22% 14%;
   --primary: 217 91% 60%;
-  --primary-foreground: 210 25% 97%;
-  --secondary: 217 60% 93%;
+  --primary-foreground: 220 23% 97%;
+  --secondary: 217 68% 94%;
   --secondary-foreground: 217 69% 23%;
-  --muted: 248 21% 93%;
-  --muted-foreground: 250 9% 39%;
-  --accent: 216 87% 91%;
-  --accent-foreground: 217 78% 47%;
+  --muted: 340 24% 93%;
+  --muted-foreground: 337 11% 39%;
+  --accent: 216 95% 92%;
+  --accent-foreground: 217 76% 48%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 100%;
-  --border: 247 18% 80%;
-  --input: 247 18% 80%;
+  --border: 335 22% 80%;
+  --input: 335 22% 80%;
   --ring: 217 91% 60%;
 
   /* Accent Colors - Light Mode */
-  --accent-1: 210 25% 97%;
-  --accent-2: 218 48% 95%;
-  --accent-3: 217 60% 93%;
-  --accent-4: 216 87% 91%;
-  --accent-5: 217 90% 88%;
-  --accent-6: 218 84% 83%;
-  --accent-7: 217 78% 77%;
-  --accent-8: 217 76% 69%;
+  --accent-1: 220 23% 97%;
+  --accent-2: 216 50% 96%;
+  --accent-3: 217 68% 94%;
+  --accent-4: 216 95% 92%;
+  --accent-5: 217 97% 88%;
+  --accent-6: 218 88% 84%;
+  --accent-7: 217 81% 78%;
+  --accent-8: 217 78% 69%;
   --accent-9: 217 91% 60%;
   --accent-10: 217 80% 55%;
-  --accent-11: 217 78% 47%;
+  --accent-11: 217 76% 48%;
   --accent-12: 217 69% 23%;
-  --accent-contrast: 210 25% 97%;
+  --accent-contrast: 220 23% 97%;
 
   /* Gray Colors - Light Mode */
-  --gray-1: 240 12% 97%;
-  --gray-2: 255 18% 96%;
-  --gray-3: 248 21% 93%;
-  --gray-4: 252 19% 89%;
-  --gray-5: 249 19% 87%;
-  --gray-6: 248 19% 84%;
-  --gray-7: 247 18% 80%;
-  --gray-8: 250 18% 73%;
-  --gray-9: 248 10% 55%;
-  --gray-10: 249 8% 51%;
-  --gray-11: 250 9% 39%;
-  --gray-12: 249 18% 14%;
-  --gray-contrast: 249 18% 14%;
+  --gray-1: 330 14% 97%;
+  --gray-2: 336 26% 96%;
+  --gray-3: 340 24% 93%;
+  --gray-4: 340 23% 90%;
+  --gray-5: 336 22% 87%;
+  --gray-6: 337 22% 84%;
+  --gray-7: 335 22% 80%;
+  --gray-8: 336 20% 73%;
+  --gray-9: 337 11% 55%;
+  --gray-10: 336 10% 51%;
+  --gray-11: 337 11% 39%;
+  --gray-12: 336 22% 14%;
+  --gray-contrast: 336 22% 14%;
 }
 
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: 240 10% 8%;
-    --foreground: 240 10% 94%;
-    --foreground-subtle: 249 9% 52%;
-    --card: 255 7% 11%;
-    --card-foreground: 240 10% 94%;
-    --popover: 250 8% 15%;
-    --popover-foreground: 240 10% 94%;
+    --background: 336 11% 9%;
+    --foreground: 345 12% 94%;
+    --foreground-subtle: 336 10% 50%;
+    --card: 336 8% 12%;
+    --card-foreground: 345 12% 94%;
+    --popover: 343 9% 15%;
+    --popover-foreground: 345 12% 94%;
     --primary: 217 91% 60%;
-    --primary-foreground: 219 41% 8%;
-    --secondary: 217 60% 17%;
-    --secondary-foreground: 240 10% 94%;
-    --muted: 250 8% 15%;
-    --muted-foreground: 249 14% 73%;
+    --primary-foreground: 217 38% 9%;
+    --secondary: 217 58% 18%;
+    --secondary-foreground: 345 12% 94%;
+    --muted: 343 9% 15%;
+    --muted-foreground: 337 16% 72%;
     --accent: 217 63% 28%;
     --accent-foreground: 216 100% 76%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 245 9% 25%;
-    --input: 245 9% 25%;
+    --border: 337 11% 24%;
+    --input: 337 11% 24%;
     --ring: 218 53% 47%;
 
     /* Accent Colors - Dark Mode */
-    --accent-1: 219 41% 8%;
-    --accent-2: 218 41% 11%;
-    --accent-3: 217 60% 17%;
-    --accent-4: 217 69% 23%;
+    --accent-1: 217 38% 9%;
+    --accent-2: 218 39% 11%;
+    --accent-3: 217 58% 18%;
+    --accent-4: 218 69% 23%;
     --accent-5: 217 63% 28%;
     --accent-6: 217 57% 33%;
     --accent-7: 217 53% 39%;
@@ -92,18 +92,18 @@
     --accent-contrast: 217 100% 91%;
 
     /* Gray Colors - Dark Mode */
-    --gray-1: 240 10% 8%;
-    --gray-2: 255 7% 11%;
-    --gray-3: 250 8% 15%;
-    --gray-4: 248 9% 18%;
-    --gray-5: 246 9% 21%;
-    --gray-6: 245 9% 25%;
-    --gray-7: 249 9% 30%;
-    --gray-8: 249 9% 41%;
-    --gray-9: 249 9% 46%;
-    --gray-10: 249 9% 52%;
-    --gray-11: 249 14% 73%;
-    --gray-12: 240 10% 94%;
-    --gray-contrast: 240 10% 8%;
+    --gray-1: 336 11% 9%;
+    --gray-2: 336 8% 12%;
+    --gray-3: 343 9% 15%;
+    --gray-4: 336 11% 18%;
+    --gray-5: 335 12% 20%;
+    --gray-6: 337 11% 24%;
+    --gray-7: 335 11% 30%;
+    --gray-8: 335 11% 40%;
+    --gray-9: 336 11% 45%;
+    --gray-10: 336 10% 50%;
+    --gray-11: 337 16% 72%;
+    --gray-12: 345 12% 94%;
+    --gray-contrast: 336 11% 9%;
   }
 }
