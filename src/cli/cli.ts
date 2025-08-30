@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // src/cli/cli.ts
 import {AutomationRunner} from '../lib/AutomationRunner/AutomationRunner.js';
-import {AdvancedColorTheory} from '../lib/ColorTheory.js';
+import {AdvancedColorTheory} from '../lib/ColorTheory';
 import chalk from 'chalk';
-import {Scheme} from "@/types/types";
+import {Scheme} from "../types/types";
 
 // Normalizes many hex formats to "#RRGGBB". Returns undefined if invalid.
 const normalizeHex = (raw?: string): string | undefined => {

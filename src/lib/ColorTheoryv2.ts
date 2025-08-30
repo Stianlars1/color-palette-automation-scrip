@@ -1,3 +1,4 @@
+/*
 import { hexToHSL, hslToHex, type HSLColor } from './utils/color/colorConverters.js';
 import type { Scheme } from '../types/types.js';
 
@@ -138,4 +139,4 @@ export class AdvancedColorTheory {
 
         return { accent, gray, lightBg, darkBg };
     }
-}
+}*/

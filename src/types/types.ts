@@ -1,6 +1,5 @@
 export type Scheme = 'monochromatic' | 'analogous' | 'complementary' | 'triadic';
 
-
 export interface ColorPalette {
     accent: string;
     gray: string;
@@ -24,4 +23,23 @@ export interface GeneratedPalette {
         dark: string;
         variables: string;
     };
+}
+
+export interface APIResponse<T = any> {
+    success: boolean;
+    data?: T;
+    error?: string;
+    message?: string;
+    metadata?: {
+        generatedAt?: string;
+        processingTime?: string;
+        inputHex?: string;
+        inputScheme?: string;
+        failedAt?: string;
+    };
+}
+
+export interface PaletteGenerationRequest {
+    hex: string;
+    scheme?: Scheme;
 }

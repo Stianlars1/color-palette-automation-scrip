@@ -1,4 +1,4 @@
-import {getContrastColor} from "@/lib/utils/color/getContrastColor";
+import {getContrastColor} from "../../lib/utils/color/getContrastColor";
 
 export async function generateHTMLPreview(baseColors: any, fullPalette: any): Promise<void> {
     const html = `

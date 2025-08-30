@@ -1,8 +1,8 @@
 import {ColorPaletteAutomation} from '../ColorPaletteAutomation/ColorPaletteAutomation.js';
 import {Scheme} from "@/types/types";
-import {generateHTMLPreview} from "@/lib/utils/generateHTMLPreview";
-import {saveToFile} from "@/lib/utils/saveToFile";
-import {createColorSwatch} from "@/lib/utils/color/createColorSwatch";
+import {generateHTMLPreview} from "../../lib/utils/generateHTMLPreview";
+import {saveToFile} from "../../lib/utils/saveToFile";
+import {createColorSwatch} from "../../lib/utils/color/createColorSwatch";
 
 export class AutomationRunner {
     private automation: ColorPaletteAutomation;

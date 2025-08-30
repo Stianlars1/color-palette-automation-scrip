@@ -1,8 +1,20 @@
-export function hexToHSL(hex: string): { h: number; s: number; l: number } {
+export interface HSLColor {
+    h: number;
+    s: number;
+    l: number;
+}
+
+export function hexToHSL(hex: string): HSLColor {
     const clean = hex.trim().replace(/^#/, '');
-    const r = parseInt(clean.slice(0, 2), 16) / 255;
-    const g = parseInt(clean.slice(2, 4), 16) / 255;
-    const b = parseInt(clean.slice(4, 6), 16) / 255;
+
+    // Handle 3-digit hex
+    const fullHex = clean.length === 3
+        ? clean.split('').map(char => char + char).join('')
+        : clean;
+
+    const r = parseInt(fullHex.slice(0, 2), 16) / 255;
+    const g = parseInt(fullHex.slice(2, 4), 16) / 255;
+    const b = parseInt(fullHex.slice(4, 6), 16) / 255;
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
@@ -29,7 +41,7 @@ export function hexToHSL(hex: string): { h: number; s: number; l: number } {
     };
 }
 
-export function hslToHex(hsl: { h: number; s: number; l: number }): string {
+export function hslToHex(hsl: HSLColor): string {
     const { h, s, l } = hsl;
     const sNorm = s / 100;
     const lNorm = l / 100;
@@ -37,9 +49,8 @@ export function hslToHex(hsl: { h: number; s: number; l: number }): string {
     const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
     const x = c * (1 - Math.abs((h / 60) % 2 - 1));
     const m = lNorm - c / 2;
-    let r = 0;
-    let g = 0;
-    let b = 0;
+
+    let r = 0, g = 0, b = 0;
 
     if (0 <= h && h < 60) {
         r = c; g = x; b = 0;
@@ -59,12 +70,27 @@ export function hslToHex(hsl: { h: number; s: number; l: number }): string {
     g = Math.round((g + m) * 255);
     b = Math.round((b + m) * 255);
 
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
 }
-
-
 
 export function hexToHSLString(hex: string): string {
     const hsl = hexToHSL(hex);
     return `${hsl.h} ${hsl.s}% ${hsl.l}%`;
+}
+
+export function normalizeHex(raw: string): string | null {
+    if (!raw) return null;
+
+    const cleaned = raw.trim().replace(/^#/, '').toUpperCase();
+
+    if (/^[0-9A-F]{6}$/.test(cleaned)) {
+        return `#${cleaned}`;
+    }
+
+    if (/^[0-9A-F]{3}$/.test(cleaned)) {
+        const [r, g, b] = cleaned.split('');
+        return `#${r}${r}${g}${g}${b}${b}`;
+    }
+
+    return null;
 }
